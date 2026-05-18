@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:18.3
+    container_name: cibus_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-message_board}
+      POSTGRES_USER: ${DB_USERNAME:-message_board_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-strong_password!}
+    ports:
+      - "${DB_EXTERNAL_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-message_board_user} -d ${DB_NAME:-message_board}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      default:
+        aliases:
+          - dbhost
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cibus_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: dbhost
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-message_board}
+      DB_USERNAME: ${DB_USERNAME:-message_board_user}
+      DB_PASSWORD: ${DB_PASSWORD:-strong_password!}
+      JWT_SECRET: ${JWT_SECRET:-change_me}
+      SERVER_HOST: ${SERVER_HOST:-0.0.0.0}
+      SERVER_PORT: ${SERVER_PORT:-9000}
+    ports:
+      - "${SERVER_PORT:-9000}:${SERVER_PORT:-9000}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:${SERVER_PORT:-9000}/openapi.json >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

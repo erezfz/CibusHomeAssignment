@@ -1,0 +1,1830 @@
+{
+  "info": {
+    "_postman_id": "e2a4f20d-54d9-4a68-85a6-b09b09e8f72e",
+    "name": "Cibus Home Assignment - Implementation Aligned Tests",
+    "description": "Implementation-aligned API test suite with runner chain, pagination checks, happy flow, and negative scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:9000"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "usernameA",
+      "value": ""
+    },
+    {
+      "key": "usernameB",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": "PostmanPass12345"
+    },
+    {
+      "key": "accessTokenA",
+      "value": ""
+    },
+    {
+      "key": "accessTokenB",
+      "value": ""
+    },
+    {
+      "key": "messageId",
+      "value": ""
+    },
+    {
+      "key": "protectedMessageId",
+      "value": ""
+    },
+    {
+      "key": "thirdMessageId",
+      "value": ""
+    },
+    {
+      "key": "messageContent",
+      "value": ""
+    },
+    {
+      "key": "protectedMessageContent",
+      "value": ""
+    },
+    {
+      "key": "thirdMessageContent",
+      "value": ""
+    },
+    {
+      "key": "boardNext1",
+      "value": ""
+    },
+    {
+      "key": "boardPage1Ids",
+      "value": "[]"
+    },
+    {
+      "key": "userNext1",
+      "value": ""
+    },
+    {
+      "key": "userPage1Ids",
+      "value": "[]"
+    },
+    {
+      "key": "nonExistingMessageId",
+      "value": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "key": "runPassed",
+      "value": "0"
+    },
+    {
+      "key": "runFailed",
+      "value": "0"
+    },
+    {
+      "key": "runErrors",
+      "value": "[]"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Run - Start Here",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/docs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "docs"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const runId = Date.now().toString();",
+              "pm.collectionVariables.set('runId', runId);",
+              "pm.collectionVariables.set('usernameA', `pm_req_author_${runId}`);",
+              "pm.collectionVariables.set('usernameB', `pm_req_voter_${runId}`);",
+              "pm.collectionVariables.set('messageContent', `Postman message A1 ${runId}`);",
+              "pm.collectionVariables.set('protectedMessageContent', `Postman message A2 ${runId}`);",
+              "pm.collectionVariables.set('thirdMessageContent', `Postman message B1 ${runId}`);",
+              "pm.collectionVariables.set('accessTokenA', '');",
+              "pm.collectionVariables.set('accessTokenB', '');",
+              "pm.collectionVariables.set('messageId', '');",
+              "pm.collectionVariables.set('protectedMessageId', '');",
+              "pm.collectionVariables.set('thirdMessageId', '');",
+              "pm.collectionVariables.set('boardNext1', '');",
+              "pm.collectionVariables.set('boardPage1Ids', '[]');",
+              "pm.collectionVariables.set('userNext1', '');",
+              "pm.collectionVariables.set('userPage1Ids', '[]');",
+              "pm.collectionVariables.set('runPassed', '0');",
+              "pm.collectionVariables.set('runFailed', '0');",
+              "pm.collectionVariables.set('runErrors', '[]');",
+              "pm.execution.setNextRequest('01 - Register user A');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Register user A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{usernameA}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "register"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 201;",
+              "pm.test('register user A returns 201', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('01 expected 201'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('02 - Register user B');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Register user B",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{usernameB}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "register"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 201;",
+              "pm.test('register user B returns 201', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('02 expected 201'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('03 - Login user A');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Login user A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{usernameA}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "let token = '';",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  token = body.access_token;",
+              "  ok = typeof token === 'string' && token.length > 0 && body.token_type === 'bearer';",
+              "}",
+              "pm.test('login user A returns token and token_type', function () { pm.expect(ok).to.eql(true); });",
+              "if (ok) { pm.collectionVariables.set('accessTokenA', token); }",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('03 expected login response'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('04 - Login user B');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Login user B",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{usernameB}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "let token = '';",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  token = body.access_token;",
+              "  ok = typeof token === 'string' && token.length > 0 && body.token_type === 'bearer';",
+              "}",
+              "pm.test('login user B returns token and token_type', function () { pm.expect(ok).to.eql(true); });",
+              "if (ok) { pm.collectionVariables.set('accessTokenB', token); }",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('04 expected login response'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('05 - Create message A1 by user A');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Create message A1 by user A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"{{messageContent}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 201;",
+              "let msgId = '';",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  msgId = body.message_id;",
+              "  ok = typeof msgId === 'string' && /^[0-9a-fA-F-]{36}$/.test(msgId);",
+              "}",
+              "pm.test('create A1 returns 201 and message_id', function () { pm.expect(ok).to.eql(true); });",
+              "if (ok) { pm.collectionVariables.set('messageId', msgId); }",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('05 expected 201 + message_id'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('06 - Create message A2 by user A');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Create message A2 by user A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"{{protectedMessageContent}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 201;",
+              "let msgId = '';",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  msgId = body.message_id;",
+              "  ok = typeof msgId === 'string' && /^[0-9a-fA-F-]{36}$/.test(msgId);",
+              "}",
+              "pm.test('create A2 returns 201 and message_id', function () { pm.expect(ok).to.eql(true); });",
+              "if (ok) { pm.collectionVariables.set('protectedMessageId', msgId); }",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('06 expected 201 + message_id'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('07 - Create message B1 by user B');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Create message B1 by user B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenB}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"{{thirdMessageContent}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 201;",
+              "let msgId = '';",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  msgId = body.message_id;",
+              "  ok = typeof msgId === 'string' && /^[0-9a-fA-F-]{36}$/.test(msgId);",
+              "}",
+              "pm.test('create B1 returns 201 and message_id', function () { pm.expect(ok).to.eql(true); });",
+              "if (ok) { pm.collectionVariables.set('thirdMessageId', msgId); }",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('07 expected 201 + message_id'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('08 - Get messages page1 limit=2');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Get messages page1 limit=2",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?limit=2",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const items = body.items || [];",
+              "  ok = Array.isArray(items) && items.length === 2 && typeof body.next === 'string' && body.next.length > 0;",
+              "  if (ok) {",
+              "    const ids = items.map(x => x.id);",
+              "    pm.collectionVariables.set('boardPage1Ids', JSON.stringify(ids));",
+              "    pm.collectionVariables.set('boardNext1', body.next);",
+              "  }",
+              "}",
+              "pm.test('messages page1 returns 2 items and next cursor', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('08 expected page1 pagination'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('09 - Get messages page2 with next_result');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Get messages page2 with next_result",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?limit=2&next_result={{boardNext1}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "2"
+            },
+            {
+              "key": "next_result",
+              "value": "{{boardNext1}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const page2Ids = (body.items || []).map(x => x.id);",
+              "  const page1Ids = JSON.parse(pm.collectionVariables.get('boardPage1Ids') || '[]');",
+              "  const merged = new Set([...page1Ids, ...page2Ids]);",
+              "  const expected = [",
+              "    pm.collectionVariables.get('messageId'),",
+              "    pm.collectionVariables.get('protectedMessageId'),",
+              "    pm.collectionVariables.get('thirdMessageId')",
+              "  ];",
+              "  ok = expected.every(id => merged.has(id));",
+              "}",
+              "pm.test('messages pagination covers all created messages', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('09 expected page1+page2 to contain all created message ids'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('10 - Vote UP on message A1 by user B');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Vote UP on message A1 by user B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenB}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vote\": \"UP\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{messageId}}/vote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{messageId}}",
+            "vote"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 204;",
+              "pm.test('vote UP returns 204', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('10 expected 204'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('11 - Verify vote_count is 1 for message A1');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Verify vote_count is 1 for message A1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const m = (body.items || []).find(x => x.id === pm.collectionVariables.get('messageId'));",
+              "  ok = !!m && m.vote_count === 1;",
+              "}",
+              "pm.test('vote_count after UP is 1', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('11 expected vote_count=1'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('12 - Vote DOWN on message A1 by user B');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Vote DOWN on message A1 by user B",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenB}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vote\": \"DOWN\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{messageId}}/vote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{messageId}}",
+            "vote"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 204;",
+              "pm.test('vote DOWN returns 204', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('12 expected 204'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('13 - Verify vote_count is -1 for message A1');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Verify vote_count is -1 for message A1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const m = (body.items || []).find(x => x.id === pm.collectionVariables.get('messageId'));",
+              "  ok = !!m && m.vote_count === -1;",
+              "}",
+              "pm.test('vote_count after DOWN is -1', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('13 expected vote_count=-1'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('14 - User messages page1 limit=1');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - User messages page1 limit=1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/user/messages?limit=1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const items = body.items || [];",
+              "  ok = Array.isArray(items) && items.length === 1 && typeof body.next === 'string' && body.next.length > 0;",
+              "  if (ok) {",
+              "    pm.collectionVariables.set('userNext1', body.next);",
+              "    pm.collectionVariables.set('userPage1Ids', JSON.stringify(items.map(x => x.id)));",
+              "  }",
+              "}",
+              "pm.test('user messages page1 has one item and next cursor', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('14 expected user page1 pagination'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('15 - User messages page2 with next_result');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - User messages page2 with next_result",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/user/messages?limit=1&next_result={{userNext1}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "1"
+            },
+            {
+              "key": "next_result",
+              "value": "{{userNext1}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const page2Ids = (body.items || []).map(x => x.id);",
+              "  const page1Ids = JSON.parse(pm.collectionVariables.get('userPage1Ids') || '[]');",
+              "  const merged = new Set([...page1Ids, ...page2Ids]);",
+              "  const expected = [pm.collectionVariables.get('messageId'), pm.collectionVariables.get('protectedMessageId')];",
+              "  ok = expected.every(id => merged.has(id));",
+              "}",
+              "pm.test('user pagination covers both user A messages', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('15 expected both A messages across user pages'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('16 - Negative invalid cursor on messages');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Negative invalid cursor on messages",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?next_result=not_base64_cursor",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "next_result",
+              "value": "not_base64_cursor"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 400;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'INVALID_CURSOR' && body.detail === 'Invalid pagination cursor';",
+              "}",
+              "pm.test('invalid cursor returns 400 with AppError payload', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('16 expected INVALID_CURSOR'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('17 - Negative duplicate register user A');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Negative duplicate register user A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{usernameA}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "register"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 409;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'USER_ALREADY_EXISTS' && body.detail === 'User already exists';",
+              "}",
+              "pm.test('duplicate register returns 409 with AppError payload', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('17 expected USER_ALREADY_EXISTS'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('18 - Negative login with bad password');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Negative login with bad password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{usernameA}}\",\n  \"password\": \"WrongPass123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 401;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'AUTHENTICATION_FAILED' && body.detail === 'Invalid authentication credentials';",
+              "}",
+              "pm.test('bad login returns 401 with AppError payload', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('18 expected AUTHENTICATION_FAILED'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('19 - Negative get messages without token');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 - Negative get messages without token",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 401;",
+              "pm.test('unauthorized /messages returns 401', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('19 expected 401 without token'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('20 - Negative create message without token');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 - Negative create message without token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"{{messageContent}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 401;",
+              "pm.test('unauthorized create message returns 401', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('20 expected 401 without token'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('21 - Negative create message too short');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 - Negative create message too short",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"ab\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 422;",
+              "pm.test('too-short message rejected with 422', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('21 expected 422 for short message'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('22 - Negative duplicate message by same user');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 - Negative duplicate message by same user",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"{{messageContent}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 409;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'MESSAGE_ALREADY_EXISTS' && body.detail === 'User already posted this message';",
+              "}",
+              "pm.test('duplicate message returns 409 with AppError payload', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('22 expected MESSAGE_ALREADY_EXISTS'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('23 - Negative vote invalid enum value');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 - Negative vote invalid enum value",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenB}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vote\": \"SIDEWAYS\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{messageId}}/vote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{messageId}}",
+            "vote"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 422;",
+              "pm.test('invalid vote enum rejected with 422', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('23 expected 422 invalid vote enum'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('24 - Negative delete another user message');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "24 - Negative delete another user message",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenB}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{protectedMessageId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{protectedMessageId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 403;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'MESSAGE_DELETE_FORBIDDEN' && body.detail === 'Message cannot be deleted by this user';",
+              "}",
+              "pm.test('delete by non-owner returns 403 AppError', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('24 expected MESSAGE_DELETE_FORBIDDEN'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('25 - Delete own message A1 by user A');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "25 - Delete own message A1 by user A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{messageId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{messageId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 204;",
+              "pm.test('delete own message returns 204', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('25 expected 204 own delete'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('26 - Negative vote deleted message');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "26 - Negative vote deleted message",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenB}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vote\": \"UP\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{messageId}}/vote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{messageId}}",
+            "vote"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 403;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'MESSAGE_VOTING_FORBIDDEN' && body.detail === 'Message cannot be voted on';",
+              "}",
+              "pm.test('vote on deleted message returns 403 AppError', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('26 expected MESSAGE_VOTING_FORBIDDEN'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('27 - Negative vote non-existing message');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "27 - Negative vote non-existing message",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenB}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vote\": \"UP\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{nonExistingMessageId}}/vote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{nonExistingMessageId}}",
+            "vote"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 404;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'MESSAGE_NOT_FOUND' && body.detail === 'Message not found';",
+              "}",
+              "pm.test('vote on non-existing message returns 404 AppError', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('27 expected MESSAGE_NOT_FOUND'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('28 - Negative delete non-existing message');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "28 - Negative delete non-existing message",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{nonExistingMessageId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages",
+            "{{nonExistingMessageId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 404;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  ok = body.code === 'MESSAGE_NOT_FOUND' && body.detail === 'Message not found';",
+              "}",
+              "pm.test('delete non-existing message returns 404 AppError', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('28 expected MESSAGE_NOT_FOUND'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('32 - Negative messages limit below min');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "32 - Negative messages limit below min",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?limit=0",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "0"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 422;",
+              "pm.test('limit below min returns 422', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('32 expected 422 for limit=0'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('33 - Negative messages limit above max');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "33 - Negative messages limit above max",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?limit=101",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "101"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 422;",
+              "pm.test('limit above max returns 422', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('33 expected 422 for limit=101'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('34 - User messages no limit default and no next');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "34 - User messages no limit default and no next",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/user/messages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "messages"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const items = body.items || [];",
+              "  const hasProtected = items.some(x => x.id === pm.collectionVariables.get('protectedMessageId'));",
+              "  const hasDeleted = items.some(x => x.id === pm.collectionVariables.get('messageId'));",
+              "  ok = Array.isArray(items) && items.length <= 20 && body.next === null && hasProtected && !hasDeleted;",
+              "}",
+              "pm.test('no-limit user/messages uses default and no next when exhausted', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('34 expected user/messages default limit, next=null, and only active user messages'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('35 - Messages large limit and no next when exhausted');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "35 - Messages large limit and no next when exhausted",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/messages?limit=100",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "100"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let ok = pm.response.code === 200;",
+              "if (ok) {",
+              "  const body = pm.response.json();",
+              "  const items = body.items || [];",
+              "  ok = Array.isArray(items) && items.length <= 100 && body.next === null;",
+              "}",
+              "pm.test('messages with high limit has no next when exhausted', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('35 expected messages next=null when fewer than requested limit'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('29 - Logout user A');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "29 - Logout user A",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessTokenA}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "logout"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 204;",
+              "pm.test('logout returns 204', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('29 expected 204 logout'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('30 - Negative logout without token');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "30 - Negative logout without token",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "logout"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ok = pm.response.code === 401;",
+              "pm.test('logout without token returns 401', function () { pm.expect(ok).to.eql(true); });",
+              "pm.collectionVariables.set('runPassed', String(Number(pm.collectionVariables.get('runPassed')) + (ok ? 1 : 0)));",
+              "if (!ok) { const errors = JSON.parse(pm.collectionVariables.get('runErrors')); errors.push('30 expected 401 no-token logout'); pm.collectionVariables.set('runErrors', JSON.stringify(errors)); pm.collectionVariables.set('runFailed', String(Number(pm.collectionVariables.get('runFailed')) + 1)); }",
+              "pm.execution.setNextRequest('31 - Run - Summary');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "31 - Run - Summary",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/docs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "docs"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const passed = Number(pm.collectionVariables.get('runPassed') || '0');",
+              "const failed = Number(pm.collectionVariables.get('runFailed') || '0');",
+              "const errors = JSON.parse(pm.collectionVariables.get('runErrors') || '[]');",
+              "console.log('=== Implementation Test Summary ===');",
+              "console.log(`Passed checks: ${passed}`);",
+              "console.log(`Failed checks: ${failed}`);",
+              "if (errors.length) {",
+              "  console.log('Failures:');",
+              "  errors.forEach(x => console.log(` - ${x}`));",
+              "}",
+              "pm.test('All checks passed', function () { pm.expect(failed).to.eql(0); });",
+              "pm.execution.setNextRequest(null);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
