@@ -163,16 +163,6 @@ Run via Postman Desktop app:
 3. Ensure the API server is running.
 4. Run the collection from Collection Runner.
 
-Run via Postman/Newman CLI manually (server must already be running):
-
-```bash
-postman collection run <CibusHomeAssignment path>/tests/system/CibusHomeAssignment.postman_collection.json -r cli
-```
-
-```bash
-newman run <CibusHomeAssignment path>/tests/system/CibusHomeAssignment.postman_collection.json --reporters cli
-```
-
 ## Server Bootstrap and Shutdown
 
 Implemented in the FastAPI lifespan (`main.py`):
