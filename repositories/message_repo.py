@@ -34,6 +34,12 @@ class MessageRepo:
 
 
     async def execute_transaction(self, workflow) -> None:
+        """
+        Run a workflow inside a single DB transaction.
+
+        The workflow is called as ``workflow(context=MessageUnitOfWorkContext(...))``
+        so the caller can execute multiple row-level operations atomically.
+        """
         async with self.client.connection() as conn:
             async with conn.transaction():
                 context = MessageUnitOfWorkContext(connection=conn)
@@ -73,6 +79,8 @@ class MessageRepo:
 
 
 class MessageUnitOfWorkContext:
+    """Transaction-scoped helpers for message state and voting mutations."""
+
     def __init__(self, connection: Connection):
         self._conn = connection
 

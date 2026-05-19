@@ -1,10 +1,11 @@
 import base64
 from datetime import datetime
 from uuid import UUID
-from repositories.message_repo import MessageRepo, MessageUnitOfWorkContext
+
 from domains.models import NonEmptyStr, VoteSelection, Message, GetMessagesResponse, MessageState
-from exceptions.exceptions import (MessageNotFoundError,MessageDeletionForbiddenError,
+from exceptions.exceptions import (MessageNotFoundError, MessageDeletionForbiddenError,
                                    MessageVotingForbiddenError, InvalidCursorError)
+from repositories.message_repo import MessageRepo, MessageUnitOfWorkContext
 
 
 class MessageService:
@@ -12,6 +13,13 @@ class MessageService:
         self.message_repo = message_repo
 
     async def get_messages(self,next_cursor: str | None , limit: int, author_id: UUID | None) -> GetMessagesResponse:
+        """
+        Return paginated messages using cursor-based pagination.
+
+        ``next_cursor`` is a base64-encoded ISO timestamp produced by
+        :meth:`encode_cursor`. The service fetches ``limit + 1`` rows to
+        determine whether a next page exists.
+        """
         decoded_cursor = self.decode_cursor(next_cursor) if next_cursor else None
         messages = await self.message_repo.get_messages(next_cursor=decoded_cursor,limit=limit+1, messages_author_id=author_id)
         has_next = len(messages) > limit
@@ -65,6 +73,7 @@ class MessageService:
 
     @staticmethod
     def decode_cursor(value: str):
+        """Decode a pagination cursor into ``datetime`` or raise ``InvalidCursorError``."""
         try:
             decoded = base64.urlsafe_b64decode(value.encode()).decode()
             return datetime.fromisoformat(decoded)
@@ -73,5 +82,6 @@ class MessageService:
 
     @staticmethod
     def encode_cursor(value: datetime):
+        """Encode a message timestamp into a stable base64 pagination cursor."""
         raw = value.isoformat()
         return base64.urlsafe_b64encode(raw.encode()).decode()
