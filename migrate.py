@@ -1,18 +1,18 @@
-import traceback
+import logging
 from pathlib import Path
-from os import environ
+
+from config import get_settings
 from ps_client import PSClient
-from domains.models import DBConnectionSettings
-from dotenv import load_dotenv
 
 ROOT_DIR = Path(__file__).parent
-DOT_ENV_FILE_PATH = ROOT_DIR / ".env"
 MIGRATIONS_DIR = ROOT_DIR / "migrations"
-load_dotenv(dotenv_path=DOT_ENV_FILE_PATH, )
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 async def ensure_migrations_table(client: PSClient):
-    print("Ensuring schema_migrations table exists...")
+    logger.info("Ensuring schema_migrations table exists...")
 
     query = """
     CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -23,75 +23,61 @@ async def ensure_migrations_table(client: PSClient):
     try:
         async with client.connection() as conn:
             await conn.execute(query)
-        print("schema_migrations table is ready")
-    except Exception as ex:
-        print("Failed to create or validate schema_migrations table")
-        print(f"Error: {str(ex)}")
-        print(traceback.format_exc())
+        logger.info("schema_migrations table is ready")
+    except Exception:
+        logger.exception("Failed to create or validate schema_migrations table", exc_info=True)
         raise
 
 
 async def get_applied_migrations(client: PSClient) -> set[str]:
-    print("Loading applied migrations...")
+    logger.info("Loading applied migrations...")
     query = "SELECT version FROM schema_migrations"
 
     try:
         async with client.connection() as conn:
             rows = await conn.fetch(query)
         migrations = {row["version"] for row in rows}
-        print(
-            f"Loaded {len(migrations)} applied migrations"
-        )
+        logger.info("Loaded %s applied migrations", len(migrations))
         return migrations
-    except Exception as ex:
-        print("Failed to load applied migrations")
-        print(f"Error: {str(ex)}")
-        print(traceback.format_exc())
+    except Exception:
+        logger.exception("Failed to load applied migrations", exc_info=True)
         raise
 
 
-async def apply_migration(client: PSClient,migration_path: Path):
+async def apply_migration(client: PSClient, migration_path: Path):
     version = migration_path.name
-    print(f"Applying migration: {version}")
+    logger.info("Applying migration: %s", version)
     try:
         sql = migration_path.read_text()
-    except Exception as ex:
-        print(f"Failed reading migration file: {version}")
-        print(f"Error: {str(ex)}")
-        print(traceback.format_exc())
+    except Exception:
+        logger.exception("Failed reading migration file: %s", version, exc_info=True)
         raise
 
     try:
         async with client.connection() as conn:
             async with conn.transaction():
                 await conn.execute(sql)
-                await conn.execute("INSERT INTO schema_migrations(version)VALUES($1)",version)
-        print(f"Successfully applied migration: {version}")
-    except Exception as ex:
-        print(f"Migration failed and was rolled back: {version}")
-        print(f"Error: {str(ex)}")
-        print(traceback.format_exc())
+                await conn.execute("INSERT INTO schema_migrations(version)VALUES($1)", version)
+        logger.info("Successfully applied migration: %s", version)
+    except Exception:
+        logger.exception("Migration failed and was rolled back: %s", version, exc_info=True)
         raise
 
 
 async def migrate():
-    print("Starting database migration process...")
+    logger.info("Starting database migration process...")
 
     try:
         migration_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
         if not migration_files:
             raise RuntimeError(f"No migration files found in: {MIGRATIONS_DIR}")
-        print(f"Found {len(migration_files)} migration files")
-        db_settings = DBConnectionSettings(db_name=environ['DB_NAME'], db_port=int(environ['DB_PORT']),
-                                           db_url=environ['DB_HOST'],
-                                           db_password=environ['DB_PASSWORD'], db_username=environ['DB_USERNAME'])
-        print("Creating PostgreSQL client...")
-        client: PSClient = await PSClient.create(db_settings)
-        print("PostgreSQL client created successfully")
-    except Exception as ex:
-        print("Failed during migration initialization")
-        print(f"Error: {str(ex)}")
-        print(traceback.format_exc())
+        logger.info("Found %s migration files", len(migration_files))
+        settings = get_settings()
+        logger.info("Creating PostgreSQL client...")
+        client: PSClient = await PSClient.create(settings.db_settings)
+        logger.info("PostgreSQL client created successfully")
+    except Exception:
+        logger.exception("Failed during migration initialization", exc_info=True)
         raise
 
     try:
@@ -100,23 +86,19 @@ async def migrate():
 
         for migration_file in migration_files:
             if migration_file.name in applied_migrations:
-                print(f"Skipping already applied migration: {migration_file.name}")
+                logger.info("Skipping already applied migration: %s", migration_file.name)
                 continue
-            await apply_migration(client,migration_file)
+            await apply_migration(client, migration_file)
 
-        print("Database migration process completed successfully")
-    except Exception as ex:
-        print("Database migration process failed")
-        print(f"Error: {str(ex)}")
-        print(traceback.format_exc())
+        logger.info("Database migration process completed successfully")
+    except Exception:
+        logger.exception("Database migration process failed", exc_info=True)
         raise
     finally:
         try:
-            print("Closing database connection pool...")
+            logger.info("Closing database connection pool...")
             await client.close()
-            print("Database connection pool closed")
+            logger.info("Database connection pool closed")
 
-        except Exception as ex:
-            print("Failed closing database connection pool")
-            print(f"Error: {str(ex)}")
-            print(traceback.format_exc())
+        except Exception:
+            logger.exception("Failed closing database connection pool", exc_info=True)

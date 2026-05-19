@@ -1,18 +1,16 @@
-from __future__ import annotations
-
 import textwrap
-from typing import TYPE_CHECKING
-from uuid import UUID
-import asyncpg
 from datetime import datetime
-from domains.models import NonEmptyStr, VoteSelection, Message, MessageResponse, MessageState
-from ps_client import PSClient
-from exceptions.exceptions import MessageAlreadyExistsError
+from typing import TypeVar
+from uuid import UUID
 
-if TYPE_CHECKING:
-    from typing import TypeVar
-    from asyncpg import Connection
-    DBClient = TypeVar('DBClient', bound=PSClient)
+import asyncpg
+from asyncpg import Connection
+
+from domains.models import NonEmptyStr, VoteSelection, Message, MessageResponse, MessageState
+from exceptions.exceptions import MessageAlreadyExistsError
+from ps_client import PSClient
+
+DBClient = TypeVar('DBClient', bound=PSClient)
 
 USERS_TABLE_NAME = "users"
 MESSAGES_TABLE_NAME = "messages"

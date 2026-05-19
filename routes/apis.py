@@ -1,21 +1,15 @@
-from __future__ import annotations
-
+from typing import Literal, Dict, Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Body, Path, Query
-from typing import TYPE_CHECKING, Literal, Dict, Annotated, List
-
-from pydantic import Field
 from starlette import status
 
 from dependencies import get_user_service, get_message_service, get_authentication_service, get_authenticated_user
-from domains.models import UserRegistrationRequest, VoteSelection, NonEmptyStr, LoginResponse, LoginRequest, User, \
+from domains.models import UserRegistrationRequest, VoteSelection, LoginResponse, LoginRequest, User, \
     GetMessagesResponse, MessageContentStr
 from services.authentication import AuthenticationService
 from services.message import MessageService
-
-if TYPE_CHECKING:
-    from services.user import UserService
+from services.user import UserService
 
 DEFAULT_PAGE_SIZE = 20
 

@@ -1,12 +1,11 @@
-from __future__ import annotations
+from functools import lru_cache
 from pathlib import Path
 
-from functools import lru_cache
 from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from domains.models import DBConnectionSettings
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 ROOT_DIR = Path(__file__).resolve().parent
 
 class Settings(BaseSettings):

@@ -2,17 +2,19 @@ import logging
 import textwrap
 from contextlib import asynccontextmanager
 
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+
 from config import get_settings
+from exceptions.exceptions import AppError
 from migrate import migrate
 from ps_client import PSClient
-import uvicorn
 from routes.apis import router
-from exceptions.exceptions import AppError
 
 settings = get_settings()
-
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,8 +25,8 @@ async def lifespan(app: FastAPI):
                                    Get jwt secret                                   
                                    """)
     logger.info(f'{startup}')
-    app.state.db_client = await PSClient.create(settings.db_settings)
     await migrate()
+    app.state.db_client = await PSClient.create(settings.db_settings)
     app.state.jwt_secret = settings.jwt_secret
 
     yield
@@ -39,8 +41,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 @app.exception_handler(AppError)
 async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
