@@ -1,4 +1,5 @@
 import base64
+import logging
 from datetime import datetime
 from uuid import UUID
 
@@ -6,6 +7,8 @@ from domains.models import NonEmptyStr, VoteSelection, Message, GetMessagesRespo
 from exceptions.exceptions import (MessageNotFoundError, MessageDeletionForbiddenError,
                                    MessageVotingForbiddenError, InvalidCursorError)
 from repositories.message_repo import MessageRepo, MessageUnitOfWorkContext
+
+logger = logging.getLogger(__name__)
 
 
 class MessageService:
@@ -40,18 +43,24 @@ class MessageService:
             detail="User already posted this message",
         )
         """
-        return await self.message_repo.add_message(content, user_id)
+        message_id = await self.message_repo.add_message(content, user_id)
+        logger.info(f"Posted message message_id={message_id} author_id={user_id}")
+        return message_id
 
     async def delete_message(self, message_id: UUID, user_id: UUID) -> None:
         async def workflow(context: MessageUnitOfWorkContext):
             message: Message | None = await context.get_message_for_update(message_id=message_id)
             if message is None:
+                logger.warning(f"Delete message failed: not found message_id={message_id}")
                 raise MessageNotFoundError()
             if message.author_id != user_id:
+                logger.warning(f"Delete message forbidden message_id={message_id} user_id={user_id}")
                 raise MessageDeletionForbiddenError()
             if message.deleted_at is not None:
+                logger.info(f"Message already deleted message_id={message_id}")
                 return
             await context.mark_message_deleted(message_id=message_id)
+            logger.info(f"Deleted message message_id={message_id} by user_id={user_id}")
 
         await self.message_repo.execute_transaction(workflow=workflow, )
 
@@ -60,13 +69,16 @@ class MessageService:
         async def workflow(context: MessageUnitOfWorkContext):
             message_state = await context.get_message_state_for_update(message_id)
             if message_state == MessageState.NOT_FOUND:
+                logger.warning(f"Vote failed: message not found message_id={message_id}")
                 raise MessageNotFoundError()
             if message_state == MessageState.DELETED:
+                logger.warning(f"Vote forbidden on deleted message message_id={message_id} user_id={user_id}")
                 raise MessageVotingForbiddenError()
             current_vote = await context.get_vote_for_update(message_id=message_id, user_id=user_id)
             delta = vote.internal_value if current_vote is None else (vote.internal_value - current_vote.internal_value)
             await context.upsert_vote(message_id=message_id, user_id=user_id, vote=vote)
             await context.update_vote_count(message_id=message_id, delta=delta)
+            logger.info(f"Applied vote message_id={message_id} user_id={user_id} vote={vote.value} delta={delta}")
 
         await self.message_repo.execute_transaction(workflow=workflow, )
 
@@ -78,6 +90,7 @@ class MessageService:
             decoded = base64.urlsafe_b64decode(value.encode()).decode()
             return datetime.fromisoformat(decoded)
         except Exception:
+            logger.warning("Invalid pagination cursor")
             raise InvalidCursorError()
 
     @staticmethod

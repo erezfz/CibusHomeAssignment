@@ -174,11 +174,36 @@ On startup:
 On shutdown:
 - closes PostgreSQL client pool
 
+## Database Schema and Migrations
+
+Migration files are located under `migrations/` and are executed on server startup (`migrate()` in `main.py`).
+
+Note: in standalone mode (no Docker), the database and DB user/password must already exist before starting the server, aligned with the `.env` file values.
+
+Migration flow:
+- migration history is tracked in `schema_migrations` (`version`, `applied_at`)
+- migration files are read in lexicographical order (`*.sql`)
+- already-applied files are skipped
+- each migration runs in a DB transaction
+
+Migration files:
+- `001_init.sql`
+- `002_add_vote_count_to_messages.sql`
+- `003_uq_author_message_hash.sql`
+
+Current schema overview:
+- `users`: user identity and password hash
+- `messages`: authored message content, soft-delete timestamp, vote count
+- `message_votes`: one vote per (`user_id`, `message_id`) with values `-1` or `1`
+- `schema_migrations`: applied migration versions
+
 ## Implementation Decisions
 
 - Voting is allowed only on messages that were not deleted.
-- A user can vote more than once for the same message. Only the latest vote is counted in the message vote count.
+- A user can vote for their own messages.
+- A user can vote more than once for the same message and will not be replied with error. ONLY THE LATEST vote is counted in the message vote count and registered.
 - A user cannot post a new message if the same user already has a non-deleted message with the exact same content.
+- Deleting an already deleted message does not return an error. Since there is no additional state change, the API returns the same `204` response as it does for a first successful deletion.
 - Message retrieval (`GET /messages` and `GET /user/messages`) supports pagination via the `next_result` query parameter.
 - There is a hard maximum page size of `50` items per page (enforced in `repositories/message_repo.py`).
 - Logout behavior:

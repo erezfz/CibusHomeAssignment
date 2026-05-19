@@ -1,15 +1,19 @@
+import logging
 from collections.abc import Mapping
+from typing import Any, TypeVar
 from uuid import UUID
+
 import asyncpg
+import bcrypt
+
+from domains.models import User, NonEmptyStr
 from exceptions.exceptions import UserAlreadyExistsError
 from ps_client import PSClient
-from typing import Any, TypeVar
-import bcrypt
-from domains.models import User, NonEmptyStr
 
 DBClient = TypeVar('DBClient', bound=PSClient)
 
 TABLE_NAME = "users"
+logger = logging.getLogger(__name__)
 
 
 class UserRepository:
@@ -27,8 +31,11 @@ class UserRepository:
             query = f"INSERT INTO {TABLE_NAME} (username, password_hash) VALUES ($1, $2) RETURNING id, username, password_hash"
             try:
                 record = await conn.fetchrow(query, username, hash_password)
-                return self._map_record_to_user(record)
+                user = self._map_record_to_user(record)
+                logger.info(f"Created user id={user.id} username={user.username}")
+                return user
             except asyncpg.UniqueViolationError:
+                logger.warning(f"User creation conflict for username={username}")
                 raise UserAlreadyExistsError()
 
 

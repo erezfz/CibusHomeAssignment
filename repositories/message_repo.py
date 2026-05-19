@@ -1,3 +1,4 @@
+import logging
 import textwrap
 from datetime import datetime
 from typing import TypeVar
@@ -16,6 +17,7 @@ USERS_TABLE_NAME = "users"
 MESSAGES_TABLE_NAME = "messages"
 
 MAX_PAGE_SIZE = 50
+logger = logging.getLogger(__name__)
 
 class MessageRepo:
     def __init__(self, client: DBClient):
@@ -28,8 +30,11 @@ class MessageRepo:
         """)
         async with self.client.connection() as conn:
             try:
-                return await conn.fetchval(query, content, user_id)
+                message_id = await conn.fetchval(query, content, user_id)
+                logger.info(f"Created message id={message_id} author_id={user_id}")
+                return message_id
             except asyncpg.UniqueViolationError:
+                logger.warning(f"Message creation conflict for author_id={user_id}")
                 raise MessageAlreadyExistsError()
 
 
