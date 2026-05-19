@@ -199,6 +199,7 @@ Current schema overview:
 
 ## Implementation Decisions
 
+- There is only one MessageBoard in the system.
 - Voting is allowed only on messages that were not deleted.
 - A user can vote for their own messages.
 - A user can vote more than once for the same message and will not be replied with error. ONLY THE LATEST vote is counted in the message vote count and registered.
