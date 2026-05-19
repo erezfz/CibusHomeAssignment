@@ -38,7 +38,7 @@ class AuthenticationService:
 
     @staticmethod
     def _create_access_token(user: User, jwt_secret: str, algorithm_name: str) -> str:
-        expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
         payload = {
             'sub': str(user.id),
             'username': user.username,
