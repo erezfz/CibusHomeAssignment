@@ -51,7 +51,7 @@ pip install -r requirements.txt
 5. Start server:
 
 ```bash
-python3 main.py
+python3 <CibusHomeAssignment path>/main.py
 ```
 
 6. Access API:
@@ -118,19 +118,19 @@ docker compose -f "<path to CibusHomeAssignment directory>/docker-compose.yml" l
 Run all pytest tests:
 
 ```bash
-python3 tests/run_pytests.py
+python3 <CibusHomeAssignment path>/tests/run_pytests.py
 ```
 
 Run only unit tests:
 
 ```bash
-python3 tests/run_pytests.py tests/unit
+python3 <CibusHomeAssignment path>/tests/run_pytests.py <CibusHomeAssignment path>/tests/unit
 ```
 
 Run only component tests:
 
 ```bash
-python3 tests/run_pytests.py tests/component
+python3 <CibusHomeAssignment path>/tests/run_pytests.py <CibusHomeAssignment path>/tests/component
 ```
 
 ### 2) System tests (Postman collection)
@@ -145,7 +145,7 @@ Prerequisites:
 Run:
 
 ```bash
-bash tests/run_system_tests.sh
+bash <CibusHomeAssignment path>/tests/run_system_tests.sh
 ```
 
 What this script does:
@@ -166,11 +166,11 @@ Run via Postman Desktop app:
 Run via Postman/Newman CLI manually (server must already be running):
 
 ```bash
-postman collection run tests/system/CibusHomeAssignment.postman_collection.json -r cli
+postman collection run <CibusHomeAssignment path>/tests/system/CibusHomeAssignment.postman_collection.json -r cli
 ```
 
 ```bash
-newman run tests/system/CibusHomeAssignment.postman_collection.json --reporters cli
+newman run <CibusHomeAssignment path>/tests/system/CibusHomeAssignment.postman_collection.json --reporters cli
 ```
 
 ## Server Bootstrap and Shutdown
