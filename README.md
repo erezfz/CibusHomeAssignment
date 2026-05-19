@@ -71,8 +71,8 @@ Start:
 
 ```bash
 docker compose \
-  --env-file "<path to CibusHomeAssignment directory>/.env" \
-  -f "<path to CibusHomeAssignment directory>/docker-compose.yml" \
+  --env-file <path to CibusHomeAssignment directory>/.env \
+  -f <path to CibusHomeAssignment directory>/docker-compose.yml \
   up --build
 ```
 
@@ -80,8 +80,8 @@ Detached mode:
 
 ```bash
 docker compose \
-  --env-file "<path to CibusHomeAssignment directory>/.env" \
-  -f "<path to CibusHomeAssignment directory>/docker-compose.yml" \
+  --env-file <path to CibusHomeAssignment directory>/.env \
+  -f <path to CibusHomeAssignment directory>/docker-compose.yml \
   up -d --build
 ```
 
@@ -89,8 +89,8 @@ Stop:
 
 ```bash
 docker compose \
-  --env-file "<path to CibusHomeAssignment directory>/.env" \
-  -f "<path to CibusHomeAssignment directory>/docker-compose.yml" \
+  --env-file <path to CibusHomeAssignment directory>/.env \
+  -f <path to CibusHomeAssignment directory>/docker-compose.yml \
   down
 ```
 
@@ -98,17 +98,17 @@ Stop and remove DB volume:
 
 ```bash
 docker compose \
-  --env-file "<path to CibusHomeAssignment directory>/.env" \
-  -f "<path to CibusHomeAssignment directory>/docker-compose.yml" \
+  --env-file <path to CibusHomeAssignment directory>/.env \
+  -f <path to CibusHomeAssignment directory>/docker-compose.yml \
   down -v
 ```
 
 Useful:
 
 ```bash
-docker compose -f "<path to CibusHomeAssignment directory>/docker-compose.yml" ps
-docker compose -f "<path to CibusHomeAssignment directory>/docker-compose.yml" logs -f api
-docker compose -f "<path to CibusHomeAssignment directory>/docker-compose.yml" logs -f db
+docker compose -f <path to CibusHomeAssignment directory>/docker-compose.yml ps
+docker compose -f <path to CibusHomeAssignment directory>/docker-compose.yml logs -f api
+docker compose -f <path to CibusHomeAssignment directory>/docker-compose.yml logs -f db
 ```
 
 ## Tests
