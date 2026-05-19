@@ -178,6 +178,7 @@ On shutdown:
 
 - Voting is allowed only on messages that were not deleted.
 - A user can vote more than once for the same message. Only the latest vote is counted in the message vote count.
+- A user cannot post a new message if the same user already has a non-deleted message with the exact same content.
 - Message retrieval (`GET /messages` and `GET /user/messages`) supports pagination via the `next_result` query parameter.
 - There is a hard maximum page size of `50` items per page (enforced in `repositories/message_repo.py`).
 - Logout behavior:
