@@ -13,7 +13,11 @@ from ps_client import PSClient
 from routes.apis import router
 
 settings = get_settings()
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=settings.log_level,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager

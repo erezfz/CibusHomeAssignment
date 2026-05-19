@@ -7,7 +7,6 @@ from ps_client import PSClient
 ROOT_DIR = Path(__file__).parent
 MIGRATIONS_DIR = ROOT_DIR / "migrations"
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
