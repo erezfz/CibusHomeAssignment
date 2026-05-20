@@ -208,7 +208,7 @@ Current schema overview:
 - A user can vote more than once for the same message and will not be replied with error. ONLY THE LATEST vote is counted in the message vote count and registered.
 - A user cannot post a new message if the same user already has a non-deleted message with the exact same content.
 - Deleting an already deleted message does not return an error. Since there is no additional state change, the API returns the same `204` response as it does for a first successful deletion.
-- Message retrieval (`GET /messages` and `GET /user/messages`) supports pagination via the `next_result` query parameter.
+- Message retrieval (`GET /messages` and `GET /user/messages`) supports pagination via query parameters: `limit` maximum items in result page, `next_result` to get the next result page (`next_result` value is provided in the server's response along with the messages if more messages can be retrived. Alse it is empty).
 - There is a hard maximum page size of `50` items per page (enforced in `repositories/message_repo.py`).
 - Logout behavior:
   - logout is implemented as a stateless JWT logout
